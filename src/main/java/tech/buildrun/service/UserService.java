@@ -3,6 +3,7 @@ package tech.buildrun.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import tech.buildrun.entity.UserEntity;
 import tech.buildrun.exception.UserNotFoundException;
+import tech.buildrun.repository.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,28 +11,34 @@ import java.util.UUID;
 @ApplicationScoped
 public class UserService {
 
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     public UserEntity createUser(UserEntity userEntity) {
-        UserEntity.persist(userEntity);
+        userRepository.persist(userEntity);
         return userEntity;
     }
 
     public List<UserEntity> findAll(Integer page, Integer pageSize) {
-        return UserEntity.findAll()
+        return userRepository.findAll()
                 .page(page, pageSize)
                 .list();
     }
 
     public UserEntity findById(UUID userId) {
-        return (UserEntity) UserEntity.findByIdOptional(userId)
+        return (UserEntity) userRepository.findByIdOptional(userId)
                 .orElseThrow(UserNotFoundException::new);
     }
 
     public UserEntity updateUser(UUID userId, UserEntity userEntity) {
         var user = findById(userId);
 
-        user.username = userEntity.username;
+        user.setUsername(userEntity.getUsername());
 
-        UserEntity.persist(user);
+        userRepository.persist(user);
 
         return user;
     }
@@ -39,6 +46,6 @@ public class UserService {
     public void deleteById(UUID userId) {
 
         var user = findById(userId);
-        UserEntity.deleteById(user.userId);
+        userRepository.deleteById(user.getUserId());
     }
 }
