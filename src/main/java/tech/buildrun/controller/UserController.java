@@ -52,6 +52,7 @@ public class UserController {
     @DELETE
     @Transactional
     public Response deleteById(@PathParam("id") UUID userId){
+        userService.deleteById(userId);
         return Response.noContent().build();
     }
 }
